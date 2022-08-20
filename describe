@@ -1,0 +1,82 @@
+1. Get FavorsFullnode.jar
+Fullnode.jar can be obtained by compiling the source code or directly from the released version
+
+Compile the source code
+Get java-tron source code
+    $ git clone https://github.com/tronprotocol/java-tron.git
+    $ git checkout -t origin/master
+compile
+    $ cd java-tron
+    $ ./gradlew clean build -x test
+After the compilation is complete, FullNode.jar will be generated in. java-tron/build/libs/FullNode.jar
+2. Start the node
+Get the mainnet full node configuration file: main_net_config.conf, other network node configuration files are here.
+
+The master starts the full node:
+A complete access point network, with complete network node history data, and providing client-side HTTP API and GRPC API. You can deploy nodes with TRON through full nodes, such as: transfer, contract, contract and other node startup commands are as follows. And specify the configuration file of the full node through the parameter: -c
+
+$ java -Xmx24g -XX:+UseConcMarkSweepGC -jar FullNode.jar -c main_net_config.conf
+-XX:+UseConcMarkSweepGC : Specifies parallel recycling.
+-Xmx: The size of the JVM heap, which can be set to 80% of the physical memory
+Full nodes producing blocks in the main launch network
+Add the parameter to the start command and fullnode will run the full node producing the block as a block. In addition to supporting all the functions of fullnode, it also supports block production and transaction matching. Please confirm that you have a representative ledger and have super votes from others, in the top 27, you need to start a superior full node party production. --witness
+
+Refill the desired other keys of the super representative address into the localwitness list of main_net_config, as shown in the following example. However, if you do not use this text-based password specification, you can use keystore+password, please explain
+
+localwitness = [
+   650950B193DDDDB35B6E48912DD28F7AB0E7140C1BFDEFD493348F02295BD812
+]
+Then execute the following command to start the node:
+
+  $ java -Xmx24g -XX:+UseConcMarkSweepGC -jar FullNode.jar --witness -c main_net_config.conf
+Note: Due to the amount of data that needs to be synced, the post-launch network test needs to be synced, so the new time to display the home screen needs to be synced. Press it into the output directory of tron, and then start the node, such a project node will be parsed and synchronized on a data pixel basis.
+
+After the node is up, you can use the command to shut down the full node. kill -15 process id
+
+other instructions
+How to use keystore+password to specify the method of witness account private key
+
+Specify a dedicated method, which requires human-machine agent when starting the node, etc., so please do not use hup, the command uses session persistence tools, such as screen, tmux.
+Comment out the localwitness configuration item in the node configuration, uncomment the localwitnesskeystore configuration item, and fill in the directory of the keystore file. Note that the keystore file needs to be placed in the current or sub-file of the command execution. If the current directory is A and the directory of the keystore file is A/B/localwitnesskeystore.json, it needs to be configured as:
+localwitnesskeystore = [
+      "B/localwitnesskeystore.json"
+]
+Note: The keystore + password can be generated using the registerwallet command of the wallet-cli project.
+full node producing blocks
+  $ java -Xmx24g -XX:+UseConcMarkSweepGC -jar FullNode.jar --witness -c main_net_config.conf
+Enter the correct password to complete the node startup.
+Optimizing memory footprint with tcmalloc
+
+To optimize memory usage, the google tcmalloc alternative system glibc malloc can be used. Methods as below:
+In the startup script the following two lines, different linux distributions of tcmalloc then add some differences.
+
+#!/bin/bash
+  
+export LD_PRELOAD="/usr/lib/libtcmalloc.so.4"
+export TCMALLOC_RELEASE_RATE=10
+  
+# original start command
+java -jar.....
+Command: install command on linux distribution
+
+Ubuntu 20.04 LTS / Ubuntu 18.04 LTS / Debian Stable
+Install
+
+sudo apt install libgoogle-perftools4
+In the startup script add:
+
+export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libtcmalloc.so.4"
+export TCMALLOC_RELEASE_RATE=10
+Ubuntu 16.04 LTS
+Install the same as above, add in the startup script:
+
+export LD_PRELOAD="/usr/lib/libtcmalloc.so.4"
+export TCMALLOC_RELEASE_RATE=10
+CentOS 7
+Install
+
+sudo yum install gperftools-libs
+In the startup script add:
+
+export LD_PRELOAD="/usr/lib64/libtcmalloc.so.4"
+export TCMALLOC_RELEASE_RATE=10
